@@ -2,4 +2,7 @@
 print("WAZZZZZUP?")
 
 import pygame as pg 
-from pg import Sprite
+from pygame.sprite import Sprite
+
+class Player(Sprite):
+    pass
