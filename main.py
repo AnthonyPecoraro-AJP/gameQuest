@@ -2,8 +2,17 @@
 # Jumpy! (a platform game) - Part 2
 # Video link: https://www.youtube.com/watch?v=8LRI0RLKyt0
 # Player movement
+# © 2019 KidsCanCode LLC / All rights reserved.
+
+'''
+Week of march 23rd - Lore
+Modularity, Github, import as,
+
+'''
 
 import pygame as pg
+from pygame.sprite import Group 
+# from pg.sprite import Sprite
 import random
 from settings import *
 from sprites import *
@@ -20,9 +29,10 @@ class Game:
 
     def new(self):
         # start a new game
-        self.all_sprites = pg.sprite.Group()
+        self.all_sprites = Group()
         self.player = Player()
         self.all_sprites.add(self.player)
+        self.platforms = pg.sprite.Group()
         self.run()
 
     def run(self):

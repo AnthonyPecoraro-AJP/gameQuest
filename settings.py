@@ -1,8 +1,13 @@
+# © 2019 KidsCanCode LLC / All rights reserved.
+
 # game options/settings
 TITLE = "Jumpy!"
 WIDTH = 480
 HEIGHT = 600
 FPS = 60
+
+# Enviornment Options
+GRAVITY = 9.8
 
 # Player properties
 PLAYER_ACC = 0.5
