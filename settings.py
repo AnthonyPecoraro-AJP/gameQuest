@@ -1,7 +1,7 @@
 # © 2019 KidsCanCode LLC / All rights reserved.
 
 # game options/settings
-TITLE = "Jumpy!"
+TITLE = "My Video Game!"
 WIDTH = 480
 HEIGHT = 600
 FPS = 60
