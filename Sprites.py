@@ -3,6 +3,7 @@
 
 import pygame as pg
 from pygame.sprite import Sprite
+# imports all info from settings.py file to here
 from settings import *
 vec = pg.math.Vector2
 
@@ -12,7 +13,7 @@ class Player(Sprite):
         Sprite.__init__(self)
         self.game = game
         self.image = pg.Surface((30, 40))
-        self.image.fill(YELLOW)
+        self.image.fill(AQUA_MARINE)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.pos = vec(WIDTH / 2, HEIGHT / 2)
@@ -21,12 +22,14 @@ class Player(Sprite):
     def myMethod(self):
         pass
     def jump(self):
+        # allows for sprite to jump!
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         self.rect.x -= 1
         if hits: 
-            self.vel.y = -20
+            self.vel.y = -15
     def update(self):
+        # Controls:
         self.acc = vec(0, 0.5)
         keys = pg.key.get_pressed()
         if keys[pg.K_a]:
@@ -34,14 +37,13 @@ class Player(Sprite):
         if keys[pg.K_d]:
             self.acc.x = PLAYER_ACC
         if keys[pg.K_w]:
-            self.acc.y = -PLAYER_ACC
+            self.jump()
         if keys[pg.K_s]:
             self.acc.y = PLAYER_ACC
-        # ALERT - Mr. Cozort did this WAY differently than Mr. Bradfield...
-        if keys[pg.K_SPACE]:
-            self.jump()
+        # if keys[pg.K_SPACE]:
+        #     self.jump()
 
-        # apply friction
+        # applies friction
         self.acc.x += self.vel.x * PLAYER_FRICTION
         # self.acc.y += self.vel.y * PLAYER_FRICTION
         # equations of motion
@@ -60,9 +62,10 @@ class Player(Sprite):
         self.rect.midbottom = self.pos
 class Platform(Sprite):
     def __init__(self, x, y, w, h):
+        # adds a platform using x and y plane + width and height (w, h)
         Sprite.__init__(self)
         self.image = pg.Surface((w, h))
-        self.image.fill(GREEN)
+        self.image.fill(VIOLET_RED)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

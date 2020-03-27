@@ -35,10 +35,13 @@ class Game:
         self.all_sprites.add(self.player)
         ground = Platform(0, HEIGHT-40, WIDTH, 40)
         plat1 = Platform(200, 400, 150, 20)
+        plat2 = Platform(50, 200, 150, 20)
         self.all_sprites.add(ground)
         self.platforms.add(ground)
         self.all_sprites.add(plat1)
         self.platforms.add(plat1)
+        self.all_sprites.add(plat2)
+        self.platforms.add(plat2)
         self.run()
 
     def run(self):
@@ -58,8 +61,11 @@ class Game:
             # print("it collided")
             self.player.vel.y = 0
             self.player.pos.y = hits[0].rect.top+1
+            # self.player.pos.y = hits[0].rect.bottom
+        elif hits:
+            self.player.y = 0
+            self.player.pos.y = hits[0].rect.y
             
-
     def events(self):
         # Game Loop - events
         for event in pg.event.get():
