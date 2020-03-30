@@ -1,7 +1,7 @@
 # © 2019 KidsCanCode LLC / All rights reserved.
 
 # game options/settings
-TITLE = "My Video Game!"
+TITLE = "So anyway I stared B L A S T I N !"
 WIDTH = 480
 HEIGHT = 600
 FPS = 60

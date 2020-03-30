@@ -1,3 +1,9 @@
+################################################################
+########  These files were created by: Anthony Pecoraro ########
+################################################################
+'''
+Sources:
+'''
 # KidsCanCode - Game Development with Pygame video series
 # Jumpy! (a platform game) - Part 2
 # Video link: https://www.youtube.com/watch?v=8LRI0RLKyt0
@@ -10,10 +16,12 @@ Modularity, Github, import as,
 
 '''
 
+# Allows to call upon 'pygame' as 'pg' 
 import pygame as pg
-from pygame.sprite import Group
 # from pg.sprite import Group
+from pygame.sprite import Group
 import random
+# imports all code (*) from sperate files
 from settings import *
 from sprites import *
 
@@ -30,14 +38,22 @@ class Game:
     def new(self):
         # start a new game
         self.all_sprites = Group()
+        # Adds platforms to sprite group
         self.platforms = pg.sprite.Group()
+        # Adds player and enemies
         self.player = Player(self)
         self.all_sprites.add(self.player)
+        # self.enemies = Enemy(self)
+        # self.all_sprites.add(self.enemies)
+        #-----------------------------------#
         ground = Platform(0, HEIGHT-40, WIDTH, 40)
+        # Creates platform dimensions 
         plat1 = Platform(200, 400, 150, 20)
         plat2 = Platform(50, 200, 150, 20)
         self.all_sprites.add(ground)
+        # Adds all plats to ground group
         self.platforms.add(ground)
+        # Adds platforms 
         self.all_sprites.add(plat1)
         self.platforms.add(plat1)
         self.all_sprites.add(plat2)
@@ -56,16 +72,19 @@ class Game:
     def update(self):
         # Game Loop - Update
         self.all_sprites.update()
+        # Checks for player collision with plats
         hits = pg.sprite.spritecollide(self.player, self.platforms, False)
         if hits:
-            # print("it collided")
-            self.player.vel.y = 0
-            self.player.pos.y = hits[0].rect.top+1
-            # self.player.pos.y = hits[0].rect.bottom
-        elif hits:
-            self.player.y = 0
-            self.player.pos.y = hits[0].rect.y
-            
+            if self.player.rect.top > hits[0].rect.top:
+                # print("I hit my head!")
+                self.player.vel.y = 0
+                self.player.rect.top = hits[0].rect.bottom + 1
+            else:
+                self.player.vel.y = 0
+                self.player.pos.y = hits[0].rect.top + 1
+                # self.player.pos.y = hits[0].rect.bottom
+
+
     def events(self):
         # Game Loop - events
         for event in pg.event.get():
@@ -79,7 +98,7 @@ class Game:
         # Game Loop - draw
         self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
-        # *after* drawing everything, flip the display
+        # *after* drawing everything, flip the display (double buffering technique)
         pg.display.flip()
 
     def show_start_screen(self):
