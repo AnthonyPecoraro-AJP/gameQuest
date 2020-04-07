@@ -25,18 +25,19 @@ class Player(Sprite):
     def myMethod(self):
         pass
     def jump(self):
-        # allows for sprite to jump!
+        # allows for sprite to jump and double jump!
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         self.rect.x -= 1
+        # If touching platform and jumping = 0; perform single jump
         if hits or self.jumping == 0: 
             self.vel.y = -15
+            # sets jumping to different state
             self.jumping = 1
-            print("single")
         elif self.jumping == 1:
             self.vel.y = -10
+            # sets jumping to different state
             self.jumping = 2
-            print("double")
     def update(self):
         # Controls:
         self.acc = vec(0, 0.5)
@@ -52,6 +53,7 @@ class Player(Sprite):
         # if keys[pg.K_SPACE]:
         #     self.jump()
         # applies friction
+        # If souble jump was performed and velocity is less than or = to 0; set jumping back to 0
         if self.jumping == 2 and self.vel.y >= 0:
             self.jumping = 0
         self.acc.x += self.vel.x * PLAYER_FRICTION
