@@ -9,6 +9,7 @@ Sources:
 # Video link: https://www.youtube.com/watch?v=8LRI0RLKyt0
 # Player movement
 # © 2019 KidsCanCode LLC / All rights reserved.
+# https://stackoverflow.com/questions/15463422/pygame-double-jump
 
 '''
 Week of march 23rd - Lore
@@ -46,7 +47,7 @@ class Game:
         # self.enemies = Enemy(self)
         # self.all_sprites.add(self.enemies)
         #-----------------------------------#
-        ground = Platform(0, HEIGHT-40, WIDTH, 40)
+        ground = Platform(0, HEIGHT-10, WIDTH, 40)
         # Creates platform dimensions 
         plat1 = Platform(200, 400, 150, 20)
         plat2 = Platform(50, 200, 150, 20)
@@ -72,7 +73,7 @@ class Game:
     def update(self):
         # Game Loop - Update
         self.all_sprites.update()
-        # Checks for player collision with plats
+        # Checks for player collision with plat bott and top
         hits = pg.sprite.spritecollide(self.player, self.platforms, False)
         if hits:
             if self.player.rect.top > hits[0].rect.top:
@@ -83,7 +84,6 @@ class Game:
                 self.player.vel.y = 0
                 self.player.pos.y = hits[0].rect.top + 1
                 # self.player.pos.y = hits[0].rect.bottom
-
 
     def events(self):
         # Game Loop - events
@@ -96,7 +96,7 @@ class Game:
 
     def draw(self):
         # Game Loop - draw
-        self.screen.fill(BLACK)
+        self.screen.fill(light_sea_green)
         self.all_sprites.draw(self.screen)
         # *after* drawing everything, flip the display (double buffering technique)
         pg.display.flip()

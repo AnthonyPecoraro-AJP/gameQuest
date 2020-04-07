@@ -13,12 +13,15 @@ class Player(Sprite):
         Sprite.__init__(self)
         self.game = game
         self.image = pg.Surface((30, 40))
-        self.image.fill(AQUA_MARINE)
+        self.image.fill(maroon)
         self.rect = self.image.get_rect()
         self.rect.center = (WIDTH / 2, HEIGHT / 2)
         self.pos = vec(WIDTH / 2, HEIGHT / 2)
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
+
+        self.vel.y = 0
+        self.jumping = 0
     def myMethod(self):
         pass
     def jump(self):
@@ -26,8 +29,14 @@ class Player(Sprite):
         self.rect.x += 1
         hits = pg.sprite.spritecollide(self, self.game.platforms, False)
         self.rect.x -= 1
-        if hits: 
+        if hits or self.jumping == 0: 
             self.vel.y = -15
+            self.jumping = 1
+            print("single")
+        elif self.jumping == 1:
+            self.vel.y = -10
+            self.jumping = 2
+            print("double")
     def update(self):
         # Controls:
         self.acc = vec(0, 0.5)
@@ -42,8 +51,9 @@ class Player(Sprite):
             self.acc.y = PLAYER_ACC
         # if keys[pg.K_SPACE]:
         #     self.jump()
-
         # applies friction
+        if self.jumping == 2 and self.vel.y >= 0:
+            self.jumping = 0
         self.acc.x += self.vel.x * PLAYER_FRICTION
         # self.acc.y += self.vel.y * PLAYER_FRICTION
         # equations of motion
@@ -54,10 +64,10 @@ class Player(Sprite):
             self.pos.x = 0
         if self.pos.x < 0:
             self.pos.x = WIDTH
-        if self.pos.y < 0:
-            self.pos.y = HEIGHT
-        if self.pos.y > HEIGHT:
-            self.pos.y = 0
+        # if self.pos.y < 0:
+        #     self.pos.y = HEIGHT
+        # if self.pos.y > HEIGHT:
+        #     self.pos.y = 0
 
         self.rect.midbottom = self.pos
 class Platform(Sprite):
@@ -65,7 +75,7 @@ class Platform(Sprite):
         # adds a platform using x and y plane + width and height (w, h)
         Sprite.__init__(self)
         self.image = pg.Surface((w, h))
-        self.image.fill(VIOLET_RED)
+        self.image.fill(red)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
