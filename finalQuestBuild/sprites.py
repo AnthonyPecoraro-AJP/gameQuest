@@ -20,8 +20,6 @@ class Player(Sprite):
         self.vel = vec(0, 0)
         self.acc = vec(0, 0)
 
-        self.vel.y = 0
-        self.jumping = 0
     def myMethod(self):
         pass
     def jump(self):
@@ -48,8 +46,6 @@ class Player(Sprite):
         #     self.jump()
         # applies friction
         # If souble jump was performed and velocity is less than or = to 0; set jumping back to 0
-        if self.jumping == 2 and self.vel.y >= 0:
-            self.jumping = 0
         self.acc.x += self.vel.x * PLAYER_FRICTION
         # self.acc.y += self.vel.y * PLAYER_FRICTION
         # equations of motion
