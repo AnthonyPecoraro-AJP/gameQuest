@@ -7,10 +7,13 @@ from pygame.sprite import Sprite
 import random
 from os import path
 from pathlib import Path
+
+# Creates file path to "img folder" 
 img_folder = Path("img")
 bg_img = img_folder / "Background.png"
 print(bg_img)
 
+# Game directory: Allows to pull from os files
 game_dir = path.join(path.dirname(__file__))
 print(game_dir)
 
@@ -32,14 +35,15 @@ YELLOW = (255, 255, 0)
 pg.init()
 pg.mixer.init()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
+# Game Title:
 pg.display.set_caption("Eye Blaster!")
 clock = pg.time.Clock()
 
-# load all images...
-background_image = pg.image.load(game_dir + "/img/Background.png")
+# Game Graphics: 
+background_image = pg.image.load(game_dir + "/img/BackgroundV2.png")
 background_rect = background_image.get_rect()
 background_rect2 = background_image.get_rect()
-player_image = pg.image.load(game_dir + "/img/Spaceship.png")
+player_image = pg.image.load(game_dir + "/img/Swordfish.png")
 mob_img = pg.image.load(game_dir + "/img/Mob.png")
 lazer_image = pg.image.load(game_dir + "/img/Lazer.png")
 spit_img = pg.image.load(path.join(game_dir + "/img/spit.png")).convert()
@@ -47,7 +51,7 @@ powerup_images = {}
 powerup_images['shield'] = pg.image.load(path.join(game_dir + "/img/Shield.png")).convert()
 powerup_images['bullet'] = pg.image.load(path.join(game_dir + "/img/Bullet.png")).convert()
 player_mini_img = pg.transform.scale(player_image, (25, 19))
-
+player_mini_img.set_colorkey(GREEN)
 
 font_name = pg.font.match_font('arial')
 def draw_text(surf, text, size, x, y):
@@ -85,7 +89,7 @@ class Player(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         # self.image = pg.Surface((50,40))
-        self.image = pg.transform.scale(player_image, (75, 60))
+        self.image = pg.transform.scale(player_image, (100, 100))
         # Green Screen effect (cuts out green from png img)
         self.image.set_colorkey(GREEN)
         # self.image = player_img
@@ -93,14 +97,18 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = WIDTH / 2
         self.rect.bottom = HEIGHT -10
+        # Player movement
         self.speedx = 0
-        self.speedy = 10
+        self.speedy = 5
+        # Player health, powerup set, an lives
         self.power = 1
         self.shield = 100
         self.lives = 3
     def update(self):
+        # self.speedy = 60
         self.speedx = 0
         # self.speedy = 0
+        # KEY BINDS:
         keystate = pg.key.get_pressed()
         if keystate[pg.K_a]:
             self.speedx = -8
@@ -113,7 +121,7 @@ class Player(Sprite):
         # if keystate[pg.K_s]:
         #     self.speedy = 8
         self.rect.x += self.speedx
-        self.rect.y += self.speedy 
+        # self.rect.y += self.speedy 
     # Taken and modified from Bradfield - power up method
     def powerup(self):
         self.power += 1
@@ -123,17 +131,31 @@ class Player(Sprite):
         all_sprites.add(lazer)
         lazers.add(lazer)
         # print('trying to shoot..')
+        if self.power >= 2:
+            # Adds extra lazer on the left side of player
+            lazer1 = Lazer(self.rect.left, self.rect.centery)
+            # Adds extra lazer on the right side of player
+            lazer2 = Lazer(self.rect.right, self.rect.centery)
+            # Adds 2 new sprites to group
+            all_sprites.add(lazer1)
+            all_sprites.add(lazer2)
 
+
+# POWERUPS!
 class Pow(Sprite):
     def __init__(self, center):
         Sprite.__init__(self)
-        self.type = random.choice(['shield', 'gun'])
-        self.image = powerup_images[self.type]
-        self.image.set_colorkey(BLACK)
+        # Random choice between shield pow an bullet pow
+        self.type = random.choice(['shield', 'bullet'])
+        # Scaling of powerups
+        self.image = pg.transform.scale(powerup_images[self.type], (50, 40))
+        
+        # Green screen
+        self.image.set_colorkey(GREEN)
         self.rect = self.image.get_rect()
         self.rect.center = center
+        # Powerup fall speed
         self.speedy = 5
-
     def update(self):
         self.rect.y += self.speedy
         # kill if it moves off the top of the screen
@@ -144,15 +166,18 @@ class Mob(Sprite):
     def __init__(self):
         Sprite.__init__(self)
         # self.image = pg.Surface((30,30))
-        self.image = pg.transform.scale(mob_img, (75, 60))
+        self.image = pg.transform.scale(mob_img, (50, 40))
         self.image.set_colorkey(GREEN)
         # self.image.fill(YELLOW)
         self.rect = self.image.get_rect()
+        # Random spawn points:
         self.rect.x = random.randrange(0, WIDTH - self.rect.width)
         self.rect.y = random.randrange(0, 250)
         self.speedy = random.randrange(1, 10)
         self.speedx = random.randrange(1, 8)
-        self.hitpoints = 10      
+        # Mob health
+        self.hitpoints = 20
+    # Mob ability to shoot back at player  
     def pew(self):
         spit = Spit(self.rect.centerx, self.rect.top)
         all_sprites.add(spit)
@@ -163,6 +188,7 @@ class Mob(Sprite):
         # self.health_rect.x = self.x
         # self.health_rect.y = self.y
         self.rect.x += self.speedx
+        # Random shooting
         if random.random() > 0.99:
             self.pew()
         # self.rect.y += self.speedy
@@ -171,13 +197,16 @@ class Mob(Sprite):
             self.rect.y += random.randrange(5,25)
         if self.rect.top > HEIGHT + 10:
             self.rect.y = 0
+        # Kills mob (erases from memory to minimize lag)
         if self.hitpoints <= 0:
             self.kill()   
 
 class Lazer(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
+        # Sizeing
         self.image = pg.transform.scale(lazer_image, (25, 20))
+        # Green screen
         self.image.set_colorkey(GREEN)
         # self.image = pg.Surface((5,10))
         # self.image.fill(BLACK)
@@ -187,13 +216,16 @@ class Lazer(Sprite):
         self.speedy = -10
     def update(self):
         self.rect.y += self.speedy
+        # Limits Lag
         if self.rect.y < 0:
             self.kill()
             # print(len(lazers))
 
+# MOB lazers 
 class Spit(Sprite):
     def __init__(self, x, y):
         Sprite.__init__(self)
+        # Scaling
         self.image = pg.transform.scale(spit_img, (25, 20))
         self.image.set_colorkey(GREEN)
         # self.image = pg.Surface((5,10))
@@ -201,13 +233,16 @@ class Spit(Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
+        # Bullet speed
         self.speedy = 8
+    # Minimize lag
     def update(self):
         self.rect.y += self.speedy
         if self.rect.y < 0:
             self.kill()
             # print(len(lazers))
 
+# Adds all sprites and entities to sprite groups
 all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()
 lazers = pg.sprite.Group()
@@ -230,6 +265,7 @@ while running:
         # check for window close
         if event.type == pg.QUIT:
             running = False
+        # Limits player shoot speed (and sets it up)
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_SPACE:
                 player.pew()
@@ -244,9 +280,11 @@ while running:
 
     hits = pg.sprite.spritecollide(player, spits, False)
 
+    # If player is hit, lower health
     if hits:
         player.shield -= 1
 
+    # Controls powerup spawns
     hits = pg.sprite.groupcollide(mobs, lazers, True, True)
     for hit in hits:
         if random.random() > 0.9:
@@ -254,6 +292,7 @@ while running:
             all_sprites.add(pow)
             powerups.add(pow)
 
+    # If mob # = 0, spawn more
     if len(mobs) == 0:
         for i in range(8):
             m = Mob()
@@ -278,24 +317,31 @@ while running:
             # shield_sound.play()
             if player.shield >= 100:
                 player.shield = 100
-        if hit.type == 'gun':
+        if hit.type == 'bullet':
             player.powerup()
             # power_sound.play()
 
+    # # Scrolling background
     background_rect2.y = background_rect.y - 600
     background_rect.y+= player.speedy
     background_rect2.y+= player.speedy
 
+    # Resets background (for scrolling)
     if background_rect2.y >- 0:
         background_rect.y = background_rect.y -600
 
     # Draw or render
-    screen.fill(RED)
+    screen.fill(BLUE)
     screen.blit(background_image, background_rect)
+    screen.blit(background_image, background_rect2)
     all_sprites.draw(screen)
+    # Draws player bar in top left of screen
     draw_shield_bar(screen, 5, 5, player.shield)
+    # Draws player lives in top right of screen
     draw_lives(screen, WIDTH - 100, 5, player.lives, player_mini_img)
+    # All sprites are rendered 
     all_sprites.draw(screen)
+    # Double buffering method
     pg.display.flip()
 
 pg.quit()
