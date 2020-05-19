@@ -1,21 +1,17 @@
 # KidsCanCode - Game Development with Pygame video series
-# Shmup game - part 1
+# Sources:
+# Code based off of: Shmup game - part(s)1-14 (Chris Bradfield)
 # Video link: https://www.youtube.com/watch?v=nGufy7weyGY
 # Player sprite and movement
+# Code also taken and modified from Mr. Cozort's repository (GitHub)
+# https://github.com/ccozort/gameQuest
+
+'''imports'''
 import pygame as pg
 from pygame.sprite import Sprite
 import random
 from os import path
 from pathlib import Path
-
-# Creates file path to "img folder" 
-img_folder = Path("img")
-bg_img = img_folder / "Background.png"
-print(bg_img)
-
-# Game directory: Allows to pull from os files
-game_dir = path.join(path.dirname(__file__))
-print(game_dir)
 
 # global variables
 WIDTH = 480
@@ -30,6 +26,15 @@ RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+
+# Creates file path to "img folder" 
+img_folder = Path("img")
+bg_img = img_folder / "Background.png"
+print(bg_img)
+
+# Game directory: Allows to pull from os files
+game_dir = path.join(path.dirname(__file__))
+print(game_dir)
 
 # initialize pygame and create window
 pg.init()
@@ -51,8 +56,10 @@ powerup_images = {}
 powerup_images['shield'] = pg.image.load(path.join(game_dir + "/img/Shield.png")).convert()
 powerup_images['bullet'] = pg.image.load(path.join(game_dir + "/img/Bullet.png")).convert()
 player_mini_img = pg.transform.scale(player_image, (25, 19))
+# Extra green screen to fix logical issue 
 player_mini_img.set_colorkey(GREEN)
 
+# Sets font
 font_name = pg.font.match_font('arial')
 def draw_text(surf, text, size, x, y):
     font = pg.font.Font(font_name, size)
@@ -61,25 +68,34 @@ def draw_text(surf, text, size, x, y):
     text_rect.midtop = (x, y)
     surf.blit(text_surface, text_rect)
 
+# Draws health
 def draw__health(surf, x, y, w):
     outline_rect = pg.Rect(x, y, 100, 20)
     fill_rect = pg.Rect(x, y, w, 20)
+    # Fills red and white
     pg.draw.rect(surf, RED, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
 
+# Draws Sheild Bar
 def draw_shield_bar(surf, x, y, pct):
     if pct < 0:
         pct = 0
+    # Length and height
     BAR_LENGTH = 100
     BAR_HEIGHT = 10
+    # Fills bar 
     fill = (pct / 100) * BAR_LENGTH
+    # Outlines bar
     outline_rect = pg.Rect(x, y, BAR_LENGTH, BAR_HEIGHT)
     fill_rect = pg.Rect(x, y, fill, BAR_HEIGHT)
-    pg.draw.rect(surf, GREEN, fill_rect)
+    # Colors: Yellow (fill) and White (outline)
+    pg.draw.rect(surf, YELLOW, fill_rect)
     pg.draw.rect(surf, WHITE, outline_rect, 2)
 
+# Draws lives
 def draw_lives(surf, x, y, lives, img):
     for i in range(lives):
+        # Adds (#) of lives to screen 
         img_rect = img.get_rect()
         img_rect.x = x - 30 * i
         img_rect.y = y
@@ -99,9 +115,11 @@ class Player(Sprite):
         self.rect.bottom = HEIGHT -10
         # Player movement
         self.speedx = 0
-        self.speedy = 5
+        # Allows for constant player movement on y axis and controls scrolling background speed
+        self.speedy = 15
         # Player health, powerup set, an lives
         self.power = 1
+        # Health and total lives
         self.shield = 100
         self.lives = 3
     def update(self):
@@ -114,18 +132,17 @@ class Player(Sprite):
             self.speedx = -8
         if keystate[pg.K_d]:
             self.speedx = 8
-        # if keystate[pg.K_SPACE]:
-        #     self.pew()
-        # if keystate[pg.K_w]:
-        #     self.speedy = -8
-        # if keystate[pg.K_s]:
-        #     self.speedy = 8
         self.rect.x += self.speedx
+
+        # If this is not commented out this breaks scrolling background
+        # # Does this because you don't want to update y speed. 
         # self.rect.y += self.speedy 
+
     # Taken and modified from Bradfield - power up method
     def powerup(self):
         self.power += 1
         self.power_time = pg.time.get_ticks()
+    # Triple bullet powerup
     def pew(self):
         lazer = Lazer(self.rect.centerx, self.rect.top)
         all_sprites.add(lazer)
@@ -213,6 +230,7 @@ class Lazer(Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
+        # Controls lazer projectile speed
         self.speedy = -10
     def update(self):
         self.rect.y += self.speedy
@@ -233,7 +251,7 @@ class Spit(Sprite):
         self.rect = self.image.get_rect()
         self.rect.bottom = y
         self.rect.centerx = x
-        # Bullet speed
+        # Bullet speed (Mob only)
         self.speedy = 8
     # Minimize lag
     def update(self):
@@ -250,6 +268,7 @@ spits = pg.sprite.Group()
 powerups = pg.sprite.Group()
 player = Player()
 all_sprites.add(player)
+# Makes sure there are always 8 mobs (only if mobs <=0)
 for i in range(8):
     m = Mob()
     all_sprites.add(m)
@@ -273,11 +292,14 @@ while running:
     # Update the sprites in the game
     all_sprites.update()
 
+    # Checks if mobs run into player 
     hits = pg.sprite.spritecollide(player, mobs, False)
 
+    # If hit by mob, game stops running (aka game over bucko)
     if hits:
         running = False 
 
+    # Checks for collision with player and mob lazers
     hits = pg.sprite.spritecollide(player, spits, False)
 
     # If player is hit, lower health
@@ -287,6 +309,7 @@ while running:
     # Controls powerup spawns
     hits = pg.sprite.groupcollide(mobs, lazers, True, True)
     for hit in hits:
+        # When mob killed spawn power up randomly 
         if random.random() > 0.9:
             pow = Pow(hit.rect.center)
             all_sprites.add(pow)
@@ -298,16 +321,6 @@ while running:
             m = Mob()
             all_sprites.add(m)
             mobs.add(m)
-
-    # for m in mobs:
-    #     lhits = pg.sprite.spritecollide(m, lazers, False)
-    #     if lhits:
-    #         m.hitpoints-=1
-    #         # print(m.hitpoints)
-    #         if random.random() > 0.9:
-    #             pow = Pow(hit.rect.center)
-    #             all_sprites.add(pow)
-    #             powerups.add(pow)
 
     # check to see if player hit a powerup
     hits = pg.sprite.spritecollide(player, powerups, True)
